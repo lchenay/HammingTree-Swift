@@ -13,27 +13,27 @@ public protocol HammingHashable: AnyObject {
 }
 
 public class HammingTree<T: HammingHashable> {
-    var node: HammingNode<T>
+    private var node: HammingNode<T>
     
-    init() {
+    public init() {
         node = HammingNode()
     }
     
-    convenience init(_ items: [T]) {
+    public convenience init(_ items: [T]) {
         self.init()
         addItems(items)
     }
     
-    func addItem(item: T) {
+    public func addItem(item: T) {
         node.addItem(item)
     }
     
-    func addItems(item: [T]) {
+    public func addItems(item: [T]) {
         node.addItems(item)
     }
     
     //TODO: do a non recusrive findClosest to optimise performance and retain
-    func findClosest(point: T, maxDistance: Int) -> [T] {
+    public func findClosest(point: T, maxDistance: Int) -> [T] {
         return node.findClosest(point, maxDistance: maxDistance)
     }
 }
