@@ -32,6 +32,7 @@ public class HammingTree<T: HammingHashable> {
         node.addItems(item)
     }
     
+    //TODO: do a non recusrive findClosest to optimise performance and retain
     func findClosest(point: T, maxDistance: Int) -> [T] {
         return node.findClosest(point, maxDistance: maxDistance)
     }
