@@ -21,11 +21,11 @@ public func ==(left: Photo, right: Photo) -> Bool {
 
 public class Photo: HammingHashable, Equatable {
     public let id: Int
-    public let hash: UInt64
+    public let hammingHash: UInt64
     
-    init(id: Int, hash: UInt64) {
+    init(id: Int, hammingHash: UInt64) {
         self.id = id
-        self.hash = hash
+        self.hammingHash = hammingHash
     }
 }
 
@@ -43,11 +43,11 @@ class HammingTreeTests: XCTestCase {
     
     func testTree() {
         let tree = HammingTree<Photo>()
-        let p1 = Photo(id: 1, hash: 0b0001)
-        let p2 = Photo(id: 2, hash: 0b0011)
-        let p3 = Photo(id: 3, hash: 0b1100)
-        let p4 = Photo(id: 4, hash: 0b1111)
-        let p5 = Photo(id: 5, hash: 0b0111)
+        let p1 = Photo(id: 1, hammingHash: 0b0001)
+        let p2 = Photo(id: 2, hammingHash: 0b0011)
+        let p3 = Photo(id: 3, hammingHash: 0b1100)
+        let p4 = Photo(id: 4, hammingHash: 0b1111)
+        let p5 = Photo(id: 5, hammingHash: 0b0111)
         
         tree.addItem(p1)
         tree.addItem(p2)
@@ -84,7 +84,7 @@ class HammingTreeTests: XCTestCase {
             let tree = HammingTree<Photo>()
             
             for (var i = 0 ; i < 25000 ; i++) {
-                let point = Photo(id: i, hash: random64())
+                let point = Photo(id: i, hammingHash: random64())
                 tree.addItem(point)
                 tree.findClosest(point, maxDistance: 2).count
             }

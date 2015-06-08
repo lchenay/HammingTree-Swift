@@ -9,7 +9,7 @@
 import Foundation
 
 public protocol HammingHashable: AnyObject {
-    var hash: UInt64 { get }
+    var hammingHash: UInt64 { get }
 }
 
 public class HammingTree<T: HammingHashable> {

@@ -92,7 +92,7 @@ internal class HammingNode<T: HammingHashable> {
                 elements.append(item)
             }
         } else {
-            let result = (item.hash >> depth) & 0b1
+            let result = (item.hammingHash >> depth) & 0b1
             if result == 0b1 {
                 right.addItem(item)
             } else {
@@ -115,12 +115,12 @@ internal class HammingNode<T: HammingHashable> {
         if isLeaf {
             var results: [T] = []
             
-            let hash = point.hash
+            let hash = point.hammingHash
             for element in elements {
                 if (element === point) {
                     continue
                 }
-                let distance = hammingWeight((hash^element.hash) >> self.depth)
+                let distance = hammingWeight((hash^element.hammingHash) >> self.depth)
                 if distance <= maxDistance {
                     results.append(element);
                 }
@@ -128,7 +128,7 @@ internal class HammingNode<T: HammingHashable> {
             
             return results
         } else {
-            let result = (point.hash >> depth) & 0b1
+            let result = (point.hammingHash >> depth) & 0b1
             let leftDecrement: Int
             let rightDecrement: Int
             if result == 0b1 {
