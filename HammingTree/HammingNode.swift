@@ -81,7 +81,7 @@ internal class HammingNode<T: HammingHashable> {
     
     func addItem(item: T) {
         if isLeaf {
-            if elements.count > 0 && depth > 0 {
+            if elements.count > 0 && depth < 63 {
                 isLeaf = false
                 left = HammingNode(depth: depth + 1)
                 right = HammingNode(depth: depth + 1)
