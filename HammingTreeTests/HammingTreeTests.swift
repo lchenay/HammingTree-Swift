@@ -70,11 +70,10 @@ class HammingTreeTests: XCTestCase {
     }
     
     func testHammingWeight() {
-        return;
-        for (var i = 0 ; i < 10000 ; i++) {
+        for (var i = 0 ; i < 1000000 ; i++) {
             let weight = random64()
             let result1 = hammingWeight(weight)
-            let result2 = hammingWeight2(weight)
+            let result2 = hammingWeight4(weight)
             XCTAssertEqual(result1, result2)
         }
     }
@@ -82,7 +81,6 @@ class HammingTreeTests: XCTestCase {
     func testPerformanceExample() {
         // This is an example of a performance test case.
         self.measureBlock() {
-            let start = NSDate()
             let tree = HammingTree<Photo>()
             
             for (var i = 0 ; i < 25000 ; i++) {

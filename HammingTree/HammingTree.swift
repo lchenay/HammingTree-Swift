@@ -10,7 +10,6 @@ import Foundation
 
 public protocol HammingHashable: AnyObject {
     var hash: UInt64 { get }
-    var id: Int { get }
 }
 
 public class HammingTree<T: HammingHashable> {

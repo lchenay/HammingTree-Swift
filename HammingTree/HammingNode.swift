@@ -20,12 +20,23 @@ let h01:UInt64 = 0x0101010101010101; //the sum of 256 to the power of 0,1,2,3...
 //This methods make EXEC_BAD_INSTRUCTION
 //Can't use it
 func hammingWeight2(i: UInt64) -> Int {
+    var x: UInt64 = i
+    x -= (x >> 1) & m1;             //put count of each 2 bits into those 2 bits
+    x = (x & m2) + ((x >> 2) & m2); //put count of each 4 bits into those 4 bits
+    x = (x + (x >> 4)) & m4;        //put count of each 8 bits into those 8 bits
+    x = (x * h01)>>24;  //returns left 8 bits of x + (x<<8) + (x<<16) + (x<<24) + ...
+    return Int(x)
+}
+
+func hammingWeight(i: UInt64) -> Int {
     var x = i
     x -= (x >> 1) & m1;             //put count of each 2 bits into those 2 bits
     x = (x & m2) + ((x >> 2) & m2); //put count of each 4 bits into those 4 bits
     x = (x + (x >> 4)) & m4;        //put count of each 8 bits into those 8 bits
-    x = (x * h01)>>56;  //returns left 8 bits of x + (x<<8) + (x<<16) + (x<<24) + ...
-    return Int(x)
+    x += x >>  8;  //put count of each 16 bits into their lowest 8 bits
+    x += x >> 16;  //put count of each 32 bits into their lowest 8 bits
+    x += x >> 32;  //put count of each 64 bits into their lowest 8 bits
+    return Int(x & 0x7f);
 }
 
 //__builtin_popcount is not accessible in Swift
@@ -35,7 +46,7 @@ func hammingWeight2(i: UInt64) -> Int {
 }*/
 
 //Very slow implementation of bitCount
-func hammingWeight(var x: UInt64) -> Int {
+func hammingWeight4(var x: UInt64) -> Int {
     var count: Int
     for (count = 0; x != 0; count++) {
         x &= x-1;
@@ -44,13 +55,13 @@ func hammingWeight(var x: UInt64) -> Int {
     return count;
 }
 
-class HammingNode<T: HammingHashable> {
-    var depth: UInt64
-    var elements: [T] = []
-    var left: HammingNode?
-    var right: HammingNode?
+internal class HammingNode<T: HammingHashable> {
+    private let depth: UInt64
+    private var elements: [T] = []
+    private var left: HammingNode!
+    private var right: HammingNode!
     
-    var isLeaf: Bool = true
+    private var isLeaf: Bool = true
     convenience init(items: [T]) {
         self.init()
         addItems(items)
@@ -60,8 +71,8 @@ class HammingNode<T: HammingHashable> {
         self.depth = 0
     }
     
-    init(depth: Int) {
-        self.depth = UInt64(depth)
+    convenience init(depth: Int) {
+        self.init(depth: UInt64(depth))
     }
     
     init(depth: UInt64) {
@@ -70,20 +81,22 @@ class HammingNode<T: HammingHashable> {
     
     func addItem(item: T) {
         if isLeaf {
-            elements.append(item)
-            if elements.count > 1 {
+            if elements.count > 0 && depth > 0 {
                 isLeaf = false
                 left = HammingNode(depth: depth + 1)
                 right = HammingNode(depth: depth + 1)
                 addItems(elements)
+                addItem(item)
                 elements = []
+            } else {
+                elements.append(item)
             }
         } else {
             let result = (item.hash >> depth) & 0b1
             if result == 0b1 {
-                right!.addItem(item)
+                right.addItem(item)
             } else {
-                left!.addItem(item)
+                left.addItem(item)
             }
         }
     }
@@ -101,11 +114,13 @@ class HammingNode<T: HammingHashable> {
         
         if isLeaf {
             var results: [T] = []
+            
+            let hash = point.hash
             for element in elements {
                 if (element === point) {
                     continue
                 }
-                let distance = hammingWeight((element.hash^point.hash) >> self.depth)
+                let distance = hammingWeight((hash^element.hash) >> self.depth)
                 if distance <= maxDistance {
                     results.append(element);
                 }
@@ -124,8 +139,8 @@ class HammingNode<T: HammingHashable> {
                 rightDecrement = 1
             }
             
-            let leftResult = left!.findClosest(point, maxDistance: maxDistance - leftDecrement)
-            let rightResult = right!.findClosest(point, maxDistance: maxDistance - rightDecrement)
+            let leftResult = left.findClosest(point, maxDistance: maxDistance - leftDecrement)
+            let rightResult = right.findClosest(point, maxDistance: maxDistance - rightDecrement)
             
             if leftResult.count == 0 {
                 return rightResult
