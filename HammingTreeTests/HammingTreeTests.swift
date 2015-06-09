@@ -44,10 +44,10 @@ class HammingTreeTests: XCTestCase {
     func testTree() {
         let tree = HammingTree<Photo>()
         let p1 = Photo(id: 1, hammingHash: 0b0001)
-        let p2 = Photo(id: 2, hammingHash: 0b0011)
-        let p3 = Photo(id: 3, hammingHash: 0b1100)
-        let p4 = Photo(id: 4, hammingHash: 0b1111)
-        let p5 = Photo(id: 5, hammingHash: 0b0111)
+        let p2 = Photo(id: 2, hammingHash: 0b0010)
+        let p3 = Photo(id: 3, hammingHash: 0b0100)
+        let p4 = Photo(id: 4, hammingHash: 0b1000)
+        let p5 = Photo(id: 5, hammingHash: 0b0000)
         
         tree.addItem(p1)
         tree.addItem(p2)
@@ -55,18 +55,12 @@ class HammingTreeTests: XCTestCase {
         tree.addItem(p4)
         tree.addItem(p5)
         
-        //let result1 = tree.findClosest(p1, maxDistance: 0)
-        //XCTAssertEqual(result1.count, 0)
+        var result = tree.findClosest(p1, maxDistance: 1)
+        XCTAssertEqual(result.count, 1)
+        XCTAssertEqual(result[0], p5)
         
-        let result2 = tree.findClosest(p1, maxDistance: 1)
-        XCTAssertEqual(result2.count, 1)
-        XCTAssertEqual(result2[0], p2)
+        result = tree.findClosest(p1, maxDistance: 4)
         
-        let result3 = tree.findClosest(p4, maxDistance: 2)
-        XCTAssertEqual(result3.count, 3)
-        XCTAssertTrue(find(result3, p2) != nil)
-        XCTAssertTrue(find(result3, p3) != nil)
-        XCTAssertTrue(find(result3, p5) != nil)
     }
     
     func testHammingWeight() {
@@ -81,6 +75,7 @@ class HammingTreeTests: XCTestCase {
     func testPerformanceExample() {
         // This is an example of a performance test case.
         self.measureBlock() {
+            println("start")
             let tree = HammingTree<Photo>()
             
             for (var i = 0 ; i < 25000 ; i++) {
@@ -88,7 +83,6 @@ class HammingTreeTests: XCTestCase {
                 tree.addItem(point)
                 tree.findClosest(point, maxDistance: 2).count
             }
-            
         }
     }
 }
