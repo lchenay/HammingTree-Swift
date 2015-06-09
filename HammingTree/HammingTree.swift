@@ -12,6 +12,17 @@ public protocol HammingHashable: AnyObject {
     var hammingHash: UInt64 { get }
 }
 
+internal class NodeToVisit<T: HammingHashable> {
+    let node: HammingNode<T>
+    let maxDistance: Int
+    var next: NodeToVisit<T>? = nil
+    
+    init(node: HammingNode<T>, maxDistance: Int) {
+        self.node = node
+        self.maxDistance = maxDistance
+    }
+}
+
 public class HammingTree<T: HammingHashable> {
     var node: HammingNode<T>
     
@@ -32,8 +43,73 @@ public class HammingTree<T: HammingHashable> {
         node.addItems(item)
     }
     
-    //TODO: do a non recusrive findClosest to optimise performance and retain
     func findClosest(point: T, maxDistance: Int) -> [T] {
-        return node.findClosest(point, maxDistance: maxDistance)
+        var results: [T] = []
+        node.findClosest(&results, point: point, maxDistance: maxDistance)
+        return results
+    }
+    
+    func findClosestNonRecursive(point: T, maxDistance: Int) -> [T] {
+        var results: [T] = []
+        
+        var nodeToVisit: NodeToVisit<T>! = NodeToVisit(node: self.node, maxDistance: maxDistance)
+        var lastNode: NodeToVisit<T> = nodeToVisit
+        
+        var maxDistance: Int
+        var distance: Int
+        var node: HammingNode<T>
+        var depth: UInt64
+        var hash: UInt64
+        var leftDecrement: Int
+        var rightDecrement: Int
+        var newNode: NodeToVisit<T>
+        
+        while nodeToVisit != nil {
+            maxDistance = nodeToVisit.maxDistance
+            if maxDistance < 0 {
+                nodeToVisit = nodeToVisit.next
+                continue
+            }
+            
+            node = nodeToVisit.node
+            depth = node.depth
+            if node.isLeaf {
+                hash = point.hammingHash
+                for element in node.elements {
+                    if (element === point) {
+                        continue
+                    }
+                    
+                    distance = hammingWeight((hash^element.hammingHash) >> depth)
+                    
+                    if distance <= maxDistance {
+                        results.append(element);
+                    }
+                }
+            } else {
+                let result = (point.hammingHash >> depth) & 0b1
+                
+                if result == 0b1 {
+                    leftDecrement = 1
+                    rightDecrement = 0
+                } else {
+                    leftDecrement = 0
+                    rightDecrement = 1
+                }
+                
+                if maxDistance - leftDecrement >= 0 {
+                    lastNode.next = NodeToVisit<T>(node: node.left, maxDistance: maxDistance - leftDecrement)
+                    lastNode = lastNode.next!
+                }
+                if maxDistance - rightDecrement >= 0 {
+                    lastNode.next = NodeToVisit<T>(node: node.right, maxDistance: maxDistance - rightDecrement)
+                    lastNode = lastNode.next!
+                }
+            }
+            
+            nodeToVisit = nodeToVisit.next
+        }
+        
+        return results
     }
 }
