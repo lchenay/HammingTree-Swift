@@ -56,12 +56,12 @@ func hammingWeight4(var x: UInt64) -> Int {
 }
 
 internal class HammingNode<T: HammingHashable> {
-    private let depth: UInt64
-    private var elements: [T] = []
-    private var left: HammingNode!
-    private var right: HammingNode!
+    internal let depth: UInt64
+    internal var elements: [T] = []
+    internal var left: HammingNode!
+    internal var right: HammingNode!
     
-    private var isLeaf: Bool = true
+    internal var isLeaf: Bool = true
     convenience init(items: [T]) {
         self.init()
         addItems(items)
@@ -107,51 +107,38 @@ internal class HammingNode<T: HammingHashable> {
         }
     }
     
-    func findClosest(point: T, maxDistance: Int) -> [T] {
+    func findClosest(inout results: [T], point: T, maxDistance: Int) {
         if maxDistance < 0 {
-            return []
+            return
         }
         
         if isLeaf {
-            var results: [T] = []
-            
             let hash = point.hammingHash
+            var distance: Int
             for element in elements {
                 if (element === point) {
                     continue
                 }
-                let distance = hammingWeight((hash^element.hammingHash) >> self.depth)
+                distance = hammingWeight((hash^element.hammingHash) >> self.depth)
                 if distance <= maxDistance {
                     results.append(element);
                 }
             }
             
-            return results
+            return
         } else {
-            let result = (point.hammingHash >> depth) & 0b1
             let leftDecrement: Int
             let rightDecrement: Int
-            if result == 0b1 {
-                leftDecrement = 1
-                rightDecrement = 0
+            if (point.hammingHash >> depth) & 0b1 == 0b1 {
+                leftDecrement = maxDistance - 1
+                rightDecrement = maxDistance
             } else {
-                leftDecrement = 0
-                rightDecrement = 1
+                leftDecrement = maxDistance
+                rightDecrement = maxDistance - 1
             }
             
-            let leftResult = left.findClosest(point, maxDistance: maxDistance - leftDecrement)
-            let rightResult = right.findClosest(point, maxDistance: maxDistance - rightDecrement)
-            
-            if leftResult.count == 0 {
-                return rightResult
-            }
-            if rightResult.count == 0 {
-                return leftResult
-            }
-            var results: [T] = []
-            results.extend(leftResult)
-            results.extend(rightResult)
-            return results;
+            left.findClosest(&results, point: point, maxDistance: leftDecrement)
+            right.findClosest(&results, point: point, maxDistance: rightDecrement)
         }
     }
 }
