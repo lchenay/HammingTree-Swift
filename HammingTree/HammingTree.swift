@@ -12,26 +12,15 @@ public protocol HammingHashable: AnyObject {
     var hammingHash: UInt64 { get }
 }
 
-internal class NodeToVisit<T: HammingHashable> {
-    let node: HammingNode<T>
-    let maxDistance: Int
-    var next: NodeToVisit<T>? = nil
-    
-    init(node: HammingNode<T>, maxDistance: Int) {
-        self.node = node
-        self.maxDistance = maxDistance
-    }
-}
-
 public class HammingTree<T: HammingHashable> {
     private var node: HammingNode<T>
     
-    public init() {
-        node = HammingNode()
+    public init(maxElements: Int) {
+        node = HammingNode(maxElements: maxElements)
     }
     
     public convenience init(_ items: [T]) {
-        self.init()
+        self.init(maxElements: 1)
         addItems(items)
     }
     
@@ -49,11 +38,12 @@ public class HammingTree<T: HammingHashable> {
         return results
     }
     
+    typealias NodeToVisit = (node: HammingNode<T>, maxDistance: Int)
+    
     func findClosestNonRecursive(point: T, maxDistance: Int) -> [T] {
         var results: [T] = []
         
-        var nodeToVisit: NodeToVisit<T>! = NodeToVisit(node: self.node, maxDistance: maxDistance)
-        var lastNode: NodeToVisit<T> = nodeToVisit
+        var nodeToVisites: [NodeToVisit] = [(node: self.node, maxDistance: maxDistance)]
         
         var maxDistance: Int
         var distance: Int
@@ -62,14 +52,11 @@ public class HammingTree<T: HammingHashable> {
         var hash: UInt64
         var leftDecrement: Int
         var rightDecrement: Int
-        var newNode: NodeToVisit<T>
-        
-        while nodeToVisit != nil {
+        var newNode: NodeToVisit
+        var nodeToVisit: NodeToVisit
+        for var i = 0 ; i < nodeToVisites.count ; i++ {
+            nodeToVisit = nodeToVisites[i]
             maxDistance = nodeToVisit.maxDistance
-            if maxDistance < 0 {
-                nodeToVisit = nodeToVisit.next
-                continue
-            }
             
             node = nodeToVisit.node
             depth = node.depth
@@ -98,16 +85,14 @@ public class HammingTree<T: HammingHashable> {
                 }
                 
                 if maxDistance - leftDecrement >= 0 {
-                    lastNode.next = NodeToVisit<T>(node: node.left, maxDistance: maxDistance - leftDecrement)
-                    lastNode = lastNode.next!
+                    newNode = (node: node.left, maxDistance: maxDistance - leftDecrement)
+                    nodeToVisites.append(newNode)
                 }
                 if maxDistance - rightDecrement >= 0 {
-                    lastNode.next = NodeToVisit<T>(node: node.right, maxDistance: maxDistance - rightDecrement)
-                    lastNode = lastNode.next!
+                    newNode = (node: node.left, maxDistance: maxDistance - rightDecrement)
+                    nodeToVisites.append(newNode)
                 }
             }
-            
-            nodeToVisit = nodeToVisit.next
         }
         
         return results

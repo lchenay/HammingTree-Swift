@@ -42,7 +42,7 @@ class HammingTreeTests: XCTestCase {
     }
     
     func testTree() {
-        let tree = HammingTree<Photo>()
+        let tree = HammingTree<Photo>(maxElements: 1)
         let p1 = Photo(id: 1, hammingHash: 0b0001)
         let p2 = Photo(id: 2, hammingHash: 0b0010)
         let p3 = Photo(id: 3, hammingHash: 0b0100)
@@ -76,12 +76,26 @@ class HammingTreeTests: XCTestCase {
         // This is an example of a performance test case.
         self.measureBlock() {
             println("start")
-            let tree = HammingTree<Photo>()
+            let tree = HammingTree<Photo>(maxElements: 5)
             
             for (var i = 0 ; i < 25000 ; i++) {
                 let point = Photo(id: i, hammingHash: random64())
                 tree.addItem(point)
                 tree.findClosest(point, maxDistance: 2).count
+            }
+        }
+    }
+    
+    func testPerformanceNonRecursiveExample() {
+        // This is an example of a performance test case.
+        self.measureBlock() {
+            println("start")
+            let tree = HammingTree<Photo>(maxElements: 5)
+            
+            for (var i = 0 ; i < 25000 ; i++) {
+                let point = Photo(id: i, hammingHash: random64())
+                tree.addItem(point)
+                tree.findClosestNonRecursive(point, maxDistance: 2).count
             }
         }
     }

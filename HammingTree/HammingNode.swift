@@ -58,33 +58,36 @@ func hammingWeight4(var x: UInt64) -> Int {
 internal class HammingNode<T: HammingHashable> {
     internal let depth: UInt64
     internal var elements: [T] = []
-    internal var left: HammingNode!
-    internal var right: HammingNode!
+    internal var left: HammingNode<T>!
+    internal var right: HammingNode<T>!
+    var maxElements = 1
     
     internal var isLeaf: Bool = true
     convenience init(items: [T]) {
-        self.init()
+        self.init(maxElements: 1)
         addItems(items)
     }
     
-    init() {
+    init(maxElements: Int) {
         self.depth = 0
+        self.maxElements = maxElements
     }
     
     convenience init(depth: Int) {
-        self.init(depth: UInt64(depth))
+        self.init(depth: UInt64(depth), maxElements: 1)
     }
     
-    init(depth: UInt64) {
+    init(depth: UInt64, maxElements: Int) {
         self.depth = depth
+        self.maxElements = maxElements
     }
     
     func addItem(item: T) {
         if isLeaf {
-            if elements.count > 0 && depth < 63 {
+            if elements.count > maxElements && depth < 63 {
                 isLeaf = false
-                left = HammingNode(depth: depth + 1)
-                right = HammingNode(depth: depth + 1)
+                left = HammingNode(depth: depth + 1, maxElements: maxElements)
+                right = HammingNode(depth: depth + 1, maxElements: maxElements)
                 addItems(elements)
                 addItem(item)
                 elements = []
