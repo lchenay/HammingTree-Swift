@@ -32,7 +32,7 @@ public class HammingTree<T: HammingHashable> {
         node.addItems(item)
     }
     
-    func findClosest(point: T, maxDistance: Int) -> [T] {
+    public func findClosest(point: T, maxDistance: Int) -> [T] {
         var results: [T] = []
         node.findClosest(&results, point: point, maxDistance: maxDistance)
         return results
@@ -40,7 +40,7 @@ public class HammingTree<T: HammingHashable> {
     
     typealias NodeToVisit = (node: HammingNode<T>, maxDistance: Int)
     
-    func findClosestNonRecursive(point: T, maxDistance: Int) -> [T] {
+    public func findClosestNonRecursive(point: T, maxDistance: Int) -> [T] {
         var results: [T] = []
         
         var nodeToVisites: [NodeToVisit] = [(node: self.node, maxDistance: maxDistance)]
