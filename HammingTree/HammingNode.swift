@@ -57,10 +57,11 @@ func hammingWeight4(var x: UInt64) -> Int {
 
 internal class HammingNode<T: HammingHashable> {
     internal let depth: UInt64
-    internal var elements: [T] = []
+    internal var elements = NSSet()
     internal var left: HammingNode<T>!
     internal var right: HammingNode<T>!
     var maxElements = 1
+    private let mask: UInt64
     
     internal var isLeaf: Bool = true
     convenience init(items: [T]) {
@@ -71,6 +72,7 @@ internal class HammingNode<T: HammingHashable> {
     init(maxElements: Int) {
         self.depth = 0
         self.maxElements = maxElements
+        self.mask = 0b1 << depth
     }
     
     convenience init(depth: Int) {
@@ -80,6 +82,7 @@ internal class HammingNode<T: HammingHashable> {
     init(depth: UInt64, maxElements: Int) {
         self.depth = depth
         self.maxElements = maxElements
+        self.mask = 0b1 << depth
     }
     
     func addItem(item: T) {
@@ -92,14 +95,16 @@ internal class HammingNode<T: HammingHashable> {
                 addItem(item)
                 elements = []
             } else {
-                elements.append(item)
+                var newElements: NSMutableSet = elements.mutableCopy() as! NSMutableSet
+                newElements.addObject(item)
+                elements = newElements
             }
         } else {
-            let result = (item.hammingHash >> depth) & 0b1
-            if result == 0b1 {
-                right.addItem(item)
-            } else {
+            let result = (item.hammingHash & mask)
+            if result == 0 {
                 left.addItem(item)
+            } else {
+                right.addItem(item)
             }
         }
     }
@@ -110,19 +115,22 @@ internal class HammingNode<T: HammingHashable> {
         }
     }
     
-    func findClosest(inout results: [T], point: T, maxDistance: Int) {
-        if maxDistance < 0 {
-            return
+    func addItems(items: NSSet) {
+        for item in items {
+            addItem(item as! T)
         }
-        
+    }
+    
+    func findClosest(inout results: [T], point: T, maxDistance: Int) {
         if isLeaf {
-            let hash = point.hammingHash
+            let hash = point.hammingHash >> self.depth
             var distance: Int
-            for element in elements {
+            for item in elements {
+                let element = item as! T
                 if (element === point) {
                     continue
                 }
-                distance = hammingWeight((hash^element.hammingHash) >> self.depth)
+                distance = hammingWeight((hash^(element.hammingHash >> self.depth)))
                 if distance <= maxDistance {
                     results.append(element);
                 }
@@ -130,18 +138,22 @@ internal class HammingNode<T: HammingHashable> {
             
             return
         } else {
-            let leftDecrement: Int
-            let rightDecrement: Int
-            if (point.hammingHash >> depth) & 0b1 == 0b1 {
-                leftDecrement = maxDistance - 1
-                rightDecrement = maxDistance
+            let leftMaxDistance: Int
+            let rightMaxDistance: Int
+            if (point.hammingHash & mask) == 0 {
+                leftMaxDistance = maxDistance
+                rightMaxDistance = maxDistance - 1
             } else {
-                leftDecrement = maxDistance
-                rightDecrement = maxDistance - 1
+                leftMaxDistance = maxDistance - 1
+                rightMaxDistance = maxDistance
             }
             
-            left.findClosest(&results, point: point, maxDistance: leftDecrement)
-            right.findClosest(&results, point: point, maxDistance: rightDecrement)
+            if leftMaxDistance >= 0 {
+                left.findClosest(&results, point: point, maxDistance: leftMaxDistance)
+            }
+            if rightMaxDistance >= 0 {
+                right.findClosest(&results, point: point, maxDistance: rightMaxDistance)
+            }
         }
     }
 }

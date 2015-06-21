@@ -62,7 +62,8 @@ public class HammingTree<T: HammingHashable> {
             depth = node.depth
             if node.isLeaf {
                 hash = point.hammingHash
-                for element in node.elements {
+                for item in node.elements {
+                    let element = item as! T
                     if (element === point) {
                         continue
                     }
