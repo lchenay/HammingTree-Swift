@@ -8,7 +8,7 @@
 
 import Foundation
 
-public protocol HammingHashable: AnyObject {
+public protocol HammingHashable: AnyObject, Equatable {
     var hammingHash: UInt64 { get }
 }
 
@@ -34,6 +34,18 @@ public class HammingTree<T: HammingHashable> {
     
     public func findClosest(point: T, maxDistance: Int) -> [T] {
         var results: [T] = []
+        
+        node.findClosest(&results, point: point.hammingHash, maxDistance: maxDistance)
+        
+        if let index = find(results, point) {
+            results.removeAtIndex(index)
+        }
+        return results
+    }
+    
+    public func findClosest(point: UInt64, maxDistance: Int) -> [T] {
+        var results: [T] = []
+        
         node.findClosest(&results, point: point, maxDistance: maxDistance)
         return results
     }

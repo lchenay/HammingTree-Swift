@@ -121,15 +121,12 @@ internal class HammingNode<T: HammingHashable> {
         }
     }
     
-    func findClosest(inout results: [T], point: T, maxDistance: Int) {
+    func findClosest(inout results: [T], point: UInt64, maxDistance: Int) {
         if isLeaf {
-            let hash = point.hammingHash >> self.depth
+            let hash = point >> self.depth
             var distance: Int
             for item in elements {
                 let element = item as! T
-                if (element === point) {
-                    continue
-                }
                 distance = hammingWeight((hash^(element.hammingHash >> self.depth)))
                 if distance <= maxDistance {
                     results.append(element);
@@ -140,7 +137,7 @@ internal class HammingNode<T: HammingHashable> {
         } else {
             let leftMaxDistance: Int
             let rightMaxDistance: Int
-            if (point.hammingHash & mask) == 0 {
+            if (point & mask) == 0 {
                 leftMaxDistance = maxDistance
                 rightMaxDistance = maxDistance - 1
             } else {
