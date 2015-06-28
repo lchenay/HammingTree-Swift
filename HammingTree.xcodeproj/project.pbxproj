@@ -166,6 +166,7 @@
 		83ACBF141B25752B00A1ABFF /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 0700;
 				LastUpgradeCheck = 0630;
 				ORGANIZATIONNAME = Sunday;
 				TargetAttributes = {
@@ -414,6 +415,7 @@
 				83ACBF351B25752B00A1ABFF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		83ACBF361B25752B00A1ABFF /* Build configuration list for PBXNativeTarget "HammingTreeTests" */ = {
 			isa = XCConfigurationList;
@@ -422,6 +424,7 @@
 				83ACBF381B25752B00A1ABFF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

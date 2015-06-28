@@ -37,7 +37,7 @@ public class HammingTree<T: HammingHashable> {
         
         node.findClosest(&results, point: point.hammingHash, maxDistance: maxDistance)
         
-        if let index = find(results, point) {
+        if let index = results.indexOf(point) {
             results.removeAtIndex(index)
         }
         return results

@@ -95,7 +95,7 @@ internal class HammingNode<T: HammingHashable> {
                 addItem(item)
                 elements = []
             } else {
-                var newElements: NSMutableSet = elements.mutableCopy() as! NSMutableSet
+                let newElements: NSMutableSet = elements.mutableCopy() as! NSMutableSet
                 newElements.addObject(item)
                 elements = newElements
             }

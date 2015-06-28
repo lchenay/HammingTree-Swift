@@ -75,7 +75,7 @@ class HammingTreeTests: XCTestCase {
     func testPerformanceExample() {
         // This is an example of a performance test case.
         self.measureBlock() {
-            println("start")
+            print("start")
             let tree = HammingTree<Photo>(maxElements: 5)
             
             for (var i = 0 ; i < 25000 ; i++) {
@@ -89,7 +89,7 @@ class HammingTreeTests: XCTestCase {
     func testPerformanceNonRecursiveExample() {
         // This is an example of a performance test case.
         self.measureBlock() {
-            println("start")
+            print("start")
             let tree = HammingTree<Photo>(maxElements: 5)
             
             for (var i = 0 ; i < 25000 ; i++) {
